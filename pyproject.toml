@@ -1,7 +1,7 @@
 [project]
 name = "llmchat"
 version = "0.1.0"
-description = "Add your description here"
+description = "High-level tools to create interactive command-line REPLs for LLMs and LangGraph"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
