@@ -21,6 +21,7 @@ class ConfigsCommand(ChatCommand):
                 if key == 'device':
                     cs.switch_device(value)
                     cs.switch_llm(cs.model_option.name)
+                    # KTODO also switch for embedding model
                     cs.print(f"[green]Configuration updated: device = {value}[/green]")
                 else:
                     if key not in cs.config:
