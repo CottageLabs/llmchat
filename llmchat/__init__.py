@@ -1,8 +1,3 @@
-from llmchat.chat_prompt_loop import ChatPromptLoop  # noqa
-from llmchat.chat_session import ChatSession  # noqa
-from llmchat.commands import ConfigsCommand, ModelsCommand, ResetConfigCommand  # noqa
-
-
 def get_default_config_template():
     return {
         # Chat
@@ -20,8 +15,13 @@ def get_default_config_template():
 
 
 def get_default_commands():
+    from llmchat.commands import ConfigsCommand, ModelsCommand, ResetConfigCommand  # noqa
     return [
         ConfigsCommand(),
         ModelsCommand(),
         ResetConfigCommand(),
     ]
+
+
+from llmchat.chat_prompt_loop import ChatPromptLoop  # noqa
+from llmchat.chat_session import ChatSession  # noqa
