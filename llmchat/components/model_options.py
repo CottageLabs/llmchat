@@ -29,13 +29,14 @@ class ModelOption(ABC):
 
 class HuggingFaceModelOption(ModelOption):
     def __init__(self, temperature=1.2, n_top_result=8, device=None, return_full_text=False,
-                 model_id="google/gemma-3-1b-it", name=None):
+                 model_id="google/gemma-3-1b-it", name=None, model_kwargs=None):
         self.temperature = temperature
         self.n_top_result = n_top_result
         self.device = device
         self.return_full_text = return_full_text
         self.model_id = model_id
         self._name = name
+        self.model_kwargs = model_kwargs or {}
         self.chat = None
 
     @property
@@ -55,6 +56,7 @@ class HuggingFaceModelOption(ModelOption):
             model_id=self.model_id,
             temperature=self.temperature,
             return_full_text=self.return_full_text,
+            **self.model_kwargs,
         )
         return self.chat
 
