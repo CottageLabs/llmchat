@@ -31,13 +31,19 @@ def create_4bit_quantization_config():
 
 
 def create_llm_huggingface(device=None, model_id="google/gemma-3-1b-it", temperature=0.7, max_length=10000,
-                           quantization_config=None, return_full_text=False
+                           quantization_config=None, return_full_text=False, pipeline_kwargs=None
                            ):
 
     device = device or get_sys_device()
 
     model_kwargs = {
         "temperature": temperature, "max_length": max_length,
+    }
+
+    pipeline_kwargs = pipeline_kwargs or {
+        "return_full_text": return_full_text,
+        "max_new_tokens": 1000,
+        "do_sample": True,
     }
 
     if device == 'cpu':
@@ -54,11 +60,7 @@ def create_llm_huggingface(device=None, model_id="google/gemma-3-1b-it", tempera
                                             model_kwargs=model_kwargs,
                                             # pipeline_kwargs={"device_map": device},
                                             device=0 if device != 'cpu' else -1,
-                                            pipeline_kwargs={
-                                                "return_full_text": return_full_text,
-                                                "max_new_tokens": 1000,
-                                                "do_sample": True,
-                                            },
+                                            pipeline_kwargs=pipeline_kwargs,
                                             )
 
     chat = ChatHuggingFace(llm=llm)
