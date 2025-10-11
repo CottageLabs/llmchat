@@ -3,6 +3,7 @@ import logging
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import NestedCompleter, FuzzyCompleter
 
+from llmchat import get_default_commands
 from llmchat.chat_session import ChatSession
 from llmchat.chat_session_utils import get_prompt_message
 from llmchat.commands import ChatCommand
@@ -47,9 +48,9 @@ def build_completer(commands: list[ChatCommand] | None = None) -> FuzzyCompleter
 
 
 class ChatPromptLoop:
-    def __init__(self, chat_session: ChatSession, commands: list[ChatCommand]):
+    def __init__(self, chat_session: ChatSession, commands: list[ChatCommand] | None = None):
         self.chat_session = chat_session
-        self.commands = commands
+        self.commands = commands if commands is not None else get_default_commands()
         self.prompt_session = PromptSession()
         self.completer = None
 
