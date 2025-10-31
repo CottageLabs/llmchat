@@ -110,10 +110,9 @@ class ChatSession:
             self.switch_device('cpu')
             llm = selected_option.create()
 
-        if self.llm is None:
-            self.rag_chain = self.build_rag_chain(llm, self.vectorstore)
-
         self.llm = llm
+        if self.rag_chain is None:
+            self.rag_chain = self.build_rag_chain(self.llm, self.vectorstore)
         self.device = self.config.get('device', 'cpu')
 
         # save to config
