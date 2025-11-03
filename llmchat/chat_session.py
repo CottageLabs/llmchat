@@ -1,7 +1,8 @@
+import inspect
 import logging
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Callable
 
 import rich
 import torch
@@ -32,6 +33,27 @@ DEFAULT_CONFIG = {
 }
 
 
+def _noop_vector_store_factory(*, collection_name=None, **_) -> None:
+    return None
+
+
+def _accepts_collection_name(factory: Callable[..., Any]) -> bool:
+    try:
+        signature = inspect.signature(factory)
+    except (TypeError, ValueError):
+        return True
+
+    for param in signature.parameters.values():
+        if param.kind == inspect.Parameter.VAR_KEYWORD:
+            return True
+        if param.name == "collection_name" and param.kind in (
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                inspect.Parameter.KEYWORD_ONLY,
+        ):
+            return True
+    return False
+
+
 @dataclass
 class ChatSession:
     # Configurations
@@ -44,7 +66,7 @@ class ChatSession:
     device: str = None
     model_option: 'ModelOption' = None
     available_models: list['ModelOption'] = None
-    vectorstore: 'Any' = None
+    vector_store_factory: Callable[..., Any] = _noop_vector_store_factory
     thread_id: str = None
 
     console: rich.console.Console = None
@@ -68,6 +90,15 @@ class ChatSession:
         if not self.config:
             self.config = self.config_manager.load() or (self.default_config or DEFAULT_CONFIG).copy()
 
+        if self.vector_store_factory is None:
+            self.vector_store_factory = _noop_vector_store_factory
+
+        if not callable(self.vector_store_factory):
+            raise TypeError("vector_store_factory must be callable.")
+
+        if not _accepts_collection_name(self.vector_store_factory):
+            raise TypeError("vector_store_factory must accept a 'collection_name' keyword argument.")
+
     @property
     def console_width(self):
         return min(self.console.size.width, self.config.get('max_width', 100))
@@ -79,6 +110,7 @@ class ChatSession:
             self.console.print(message, width=self.console_width)
 
     def build_rag_chain(self, llm, vector_store) -> 'CompiledStateGraph':
+        # KTODO remove param llm, and vector_store, use self.llm, self.vector_store_factory instead
         from llmchat import pipelines
         return pipelines.build_simple_chat_app(llm)
 
@@ -112,7 +144,7 @@ class ChatSession:
 
         self.llm = llm
         if self.rag_chain is None:
-            self.rag_chain = self.build_rag_chain(self.llm, self.vectorstore)
+            self.rag_chain = self.build_rag_chain(self.llm, None)
         self.device = self.config.get('device', 'cpu')
 
         # save to config
