@@ -109,10 +109,9 @@ class ChatSession:
         else:
             self.console.print(message, width=self.console_width)
 
-    def build_rag_chain(self, llm, vector_store) -> 'CompiledStateGraph':
-        # KTODO remove param llm, and vector_store, use self.llm, self.vector_store_factory instead
+    def build_rag_chain(self) -> 'CompiledStateGraph':
         from llmchat import pipelines
-        return pipelines.build_simple_chat_app(llm)
+        return pipelines.build_simple_chat_app(self.llm)
 
     def switch_llm(self, model_option_name: str):
         selected_option = None
@@ -144,7 +143,7 @@ class ChatSession:
 
         self.llm = llm
         if self.rag_chain is None:
-            self.rag_chain = self.build_rag_chain(self.llm, None)
+            self.rag_chain = self.build_rag_chain()
         self.device = self.config.get('device', 'cpu')
 
         # save to config
