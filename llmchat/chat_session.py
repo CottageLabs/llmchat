@@ -187,3 +187,17 @@ class ChatSession:
         output = Markdown(response['messages'][-1].content)
         output = Panel(output)
         self.print(output)
+
+    def get_prompt_message(self) -> str:
+        from llmchat.components.model_options import HuggingFaceModelOption
+
+        model_name = self.config.get('model_option_name', 'unknown')
+        output_mode = self.config.get('output_mode', 'simple')
+
+        if isinstance(self.model_option, HuggingFaceModelOption):
+            device_display = ''
+            if device := self.config.get('device', None):
+                device_display = ' ({})'.format(device)
+            return "[{model}{device}][{mode}]>  ".format(model=model_name, device=device_display, mode=output_mode)
+
+        return "[{model}][{mode}]>  ".format(model=model_name, mode=output_mode)

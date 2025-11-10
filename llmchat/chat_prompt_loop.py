@@ -5,7 +5,6 @@ from prompt_toolkit.completion import NestedCompleter, FuzzyCompleter
 
 from llmchat import get_default_commands
 from llmchat.chat_session import ChatSession
-from llmchat.chat_session_utils import get_prompt_message
 from llmchat.commands import ChatCommand
 
 log = logging.getLogger(__name__)
@@ -64,7 +63,7 @@ class ChatPromptLoop:
     def run(self) -> None:
         while True:
             try:
-                prompt_message = get_prompt_message(self.chat_session)
+                prompt_message = self.chat_session.get_prompt_message()
                 user_input = self.prompt_session.prompt(prompt_message, completer=self.completer)
                 if not user_input.strip():
                     continue
