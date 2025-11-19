@@ -8,7 +8,7 @@ class ChatCommand(ABC):
     def is_match(self, user_input: str) -> bool:
         return user_input.startswith(self.prefix)
 
-    def create_nested_dict(self):
+    def create_nested_dict(self, chat_session: 'ChatSession' = None):
         """
         For PromptSession auto-completion
         """

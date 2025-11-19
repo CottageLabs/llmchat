@@ -30,17 +30,13 @@ def validate_command_prefixes(commands: list[ChatCommand]) -> None:
         raise ValueError(f"Duplicate command prefixes found: {', '.join(sorted(duplicates))}")
 
 
-def build_completer(commands: list[ChatCommand] | None = None) -> FuzzyCompleter:
+def build_completer(commands: list[ChatCommand] | None = None, chat_session: ChatSession = None) -> FuzzyCompleter:
     """
     Build a nested completer dynamically so 'use <dataset>' picks up new names.
     """
-    data = {
-        # TOBEREMOVE
-        "/librarian": {"show": None, },  # KTODO add librarian commands
-    }
-
+    data = {}
     for helper in (commands or []):
-        data.update(helper.create_nested_dict())
+        data.update(helper.create_nested_dict(chat_session))
 
     nested = NestedCompleter.from_nested_dict(data)
     return FuzzyCompleter(nested)
@@ -58,7 +54,7 @@ class ChatPromptLoop:
             self.chat_session.switch_llm(self.chat_session.config['model_option_name'])
 
         validate_command_prefixes(self.commands)
-        self.completer = build_completer(self.commands)
+        self.completer = build_completer(self.commands, self.chat_session)
 
     def run(self) -> None:
         while True:

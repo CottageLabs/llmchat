@@ -7,7 +7,15 @@ class ModelsCommand(ChatCommand):
     def __init__(self, prefix: str = '/models'):
         super().__init__(prefix)
 
-    # KTODO add available models list to auto completer
+    def create_nested_dict(self, chat_session: 'ChatSession' = None):
+        """
+        For PromptSession auto-completion
+        """
+        if chat_session and chat_session.available_models:
+            models_dict = {model.name: None for model in chat_session.available_models}
+            return {self.prefix: models_dict}
+        return {self.prefix: None}
+
 
     def run(self, user_input: str, cs: 'ChatSession'):
         model_name = extract_command_arg(self.prefix, user_input)
@@ -35,3 +43,4 @@ Examples:
 
             cs.print(Markdown('\n'.join(available_models)))
             cs.print()
+
